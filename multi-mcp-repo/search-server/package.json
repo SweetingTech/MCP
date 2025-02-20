@@ -1,0 +1,17 @@
+{
+  "name": "search-server",
+  "version": "1.0.0",
+  "description": "MCP server for advanced search operations",
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc && powershell -Command \"(Get-Item build/index.js).Attributes = (Get-Item build/index.js).Attributes -bor 0x80\"",
+    "start": "node build/index.js"
+  },
+  "dependencies": {
+    "fast-glob": "^3.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  }
+}

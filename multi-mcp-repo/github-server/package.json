@@ -1,0 +1,19 @@
+{
+  "name": "github-server",
+  "version": "1.0.0",
+  "description": "MCP server for GitHub operations",
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc && powershell -Command \"(Get-Item build/index.js).Attributes = (Get-Item build/index.js).Attributes -bor 0x80\"",
+    "start": "node build/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.5.0",
+    "@octokit/rest": "^20.0.0",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  }
+}
