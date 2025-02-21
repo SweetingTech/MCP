@@ -1,20 +1,6 @@
 # MCP Server Repository
 
-This repository contains multiple Model Context Protocol (MCP) servers that provide various tools and capabilities. Each server is implemented in TypeScript and follows a modular architecture for easy extension and maintenance.
-
-## Architecture
-
-Each server follows a common architecture:
-- `types.ts`: Core type definitions and interfaces
-- `server.ts`: Base server implementation
-- `stdio.ts`: Standard I/O transport layer
-- `index.ts`: Server-specific tool implementations
-
-### Common Components
-- Error handling with custom `McpError` class
-- Standard I/O based communication
-- Tool registration system
-- Request/response handling
+A collection of Model Context Protocol (MCP) servers providing various tools and capabilities, along with a web-based management interface.
 
 ## Available Servers
 
@@ -24,23 +10,19 @@ Located in `github-server/`, this server provides tools for interacting with Git
 - Search repositories
 - List repository contents
 
-Key Features:
-- GitHub API integration via Octokit
-- Token-based authentication
-- Comprehensive error handling
-- Input validation for all operations
-
 ### 2. Search Server
 Located in `search-server/`, this server provides advanced search capabilities:
 - Search for patterns in files
 - Find files matching glob patterns
 - Find code definitions (classes, functions, etc.)
 
-Key Features:
-- Fast file searching with glob patterns
-- Code definition detection
-- Configurable file type filtering
-- Recursive directory traversal
+### 3. Manager Server
+Located in `manager-server/`, this server provides a web GUI and API for managing MCP servers:
+- Add/remove/update MCP servers
+- Enable/disable servers
+- Monitor server status
+- Manage server configurations
+- Backup and restore settings
 
 ## Setup
 
@@ -72,18 +54,24 @@ npm install
 npm run build
 ```
 
+4. Set up Manager server:
+```bash
+cd ../manager-server
+npm run install:all  # Installs both backend and frontend dependencies
+npm run build       # Builds both backend and frontend
+```
+
 ### Configuration
 
 #### GitHub Server
 1. Follow the instructions in `github-server/get-github-token.md` to obtain a GitHub token
-2. Add the server configuration to your MCP settings file (`C:\Users\BigDSweetz\AppData\Roaming\Code\User\globalStorage\saoudrizwan.claude-dev\settings\cline_mcp_settings.json`):
-
+2. Add the server configuration to your MCP settings file:
 ```json
 {
   "mcpServers": {
     "github": {
       "command": "node",
-      "args": ["C:/Users/BigDSweetz/Desktop/Git/MCP/multi-mcp-repo/github-server/build/index.js"],
+      "args": ["path/to/github-server/build/index.js"],
       "env": {
         "GITHUB_TOKEN": "your-token-here"
       }
@@ -94,124 +82,92 @@ npm run build
 
 #### Search Server
 Add the server configuration to your MCP settings file:
-
 ```json
 {
   "mcpServers": {
     "search": {
       "command": "node",
-      "args": ["C:/Users/BigDSweetz/Desktop/Git/MCP/multi-mcp-repo/search-server/build/index.js"]
+      "args": ["path/to/search-server/build/index.js"]
     }
   }
 }
 ```
 
-## Usage Examples
-
-### GitHub Server
-
-```typescript
-// Create an issue
-use_mcp_tool({
-  server_name: "github",
-  tool_name: "create_issue",
-  arguments: {
-    owner: "username",
-    repo: "repo-name",
-    title: "Bug report",
-    body: "Found a bug in...",
-    labels: ["bug"]
-  }
-});
-
-// Search repositories
-use_mcp_tool({
-  server_name: "github",
-  tool_name: "search_repos",
-  arguments: {
-    query: "language:typescript stars:>1000",
-    sort: "stars",
-    per_page: 10
-  }
-});
+#### Manager Server
+1. Start the manager server:
+```bash
+cd manager-server
+npm start
 ```
-
-### Search Server
-
-```typescript
-// Search in files
-use_mcp_tool({
-  server_name: "search",
-  tool_name: "search_in_files",
-  arguments: {
-    directory: "/path/to/search",
-    pattern: "TODO:",
-    fileTypes: ["ts", "js"]
-  }
-});
-
-// Find code definitions
-use_mcp_tool({
-  server_name: "search",
-  tool_name: "find_code_definitions",
-  arguments: {
-    directory: "/path/to/search",
-    fileTypes: ["ts"]
-  }
-});
-```
+2. Open http://localhost:3500 in your browser
+3. Use the web interface to manage your MCP servers
 
 ## Development
 
-### Adding a New Server
+### Running in Development Mode
 
-1. Create a new directory for your server:
+Each server can be run in development mode with auto-reloading:
+
+#### GitHub Server
 ```bash
-mkdir my-new-server
-cd my-new-server
+cd github-server
+npm run dev
 ```
 
+#### Search Server
+```bash
+cd search-server
+npm run dev
+```
+
+#### Manager Server
+```bash
+cd manager-server
+npm run dev  # Starts both backend and frontend in dev mode
+```
+
+### Adding a New Server
+
+1. Create a new directory for your server
 2. Copy the base implementation files:
-- `types.ts`: Core type definitions
-- `server.ts`: Base server implementation
-- `stdio.ts`: Transport layer
+   - `types.ts`: Core type definitions
+   - `server.ts`: Base server implementation
+   - `stdio.ts`: Transport layer
+3. Implement your server's specific tools and functionality
+4. Add build and start scripts
+5. Add the server to the MCP settings file
 
-3. Create your server implementation:
-- Define your tools in `index.ts`
-- Implement tool handlers
-- Add any necessary dependencies
+### Architecture
 
-4. Set up the build process:
-- Copy `tsconfig.json` from an existing server
-- Update `package.json` with necessary dependencies
-- Add build and start scripts
+Each server follows a common architecture:
+- TypeScript-based implementation
+- Standard I/O based communication
+- Tool registration system
+- Error handling with custom error types
+- Input validation using schemas
 
-5. Test your server:
-- Build the server
-- Add configuration to MCP settings
-- Test each tool's functionality
+The Manager server additionally includes:
+- Express.js backend API
+- React frontend with Material-UI
+- Configuration management
+- Backup/restore functionality
 
-### Best Practices
+## API Documentation
 
-1. Error Handling
-- Use the `McpError` class for consistent error reporting
-- Provide detailed error messages
-- Handle all edge cases
+### Manager Server API
 
-2. Input Validation
-- Define clear input schemas for each tool
-- Validate all input parameters
-- Provide meaningful error messages for invalid inputs
+The Manager server provides a REST API for managing MCP servers:
 
-3. Documentation
-- Document all tools and their parameters
-- Provide usage examples
-- Keep README up to date
-
-4. Testing
-- Test all tools with various inputs
-- Test error conditions
-- Test edge cases
+- `GET /api/servers` - List all servers
+- `POST /api/servers` - Add a new server
+- `GET /api/servers/:name` - Get server details
+- `PUT /api/servers/:name` - Update server configuration
+- `DELETE /api/servers/:name` - Remove a server
+- `POST /api/servers/:name/enable` - Enable a server
+- `POST /api/servers/:name/disable` - Disable a server
+- `GET /api/servers/:name/status` - Get server status
+- `GET /api/backups` - List configuration backups
+- `POST /api/backups/:name/restore` - Restore from backup
 
 ## Contributing
 
@@ -223,9 +179,3 @@ cd my-new-server
 ## License
 
 MIT
-
-## Acknowledgments
-
-- Built with TypeScript
-- Uses the Model Context Protocol
-- Inspired by the MCP SDK
